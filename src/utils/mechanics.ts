@@ -13,9 +13,10 @@ export const chanceToDie = (input: Record<string, IterationOutput[]>) => {
     })
 }
 
-export const solveSingleAttacker = (dmg: number, defenders: Ship[], remainingBlastCovers?: Cover[], remainingAreaCovers?: Cover[]): IterationOutput[][] => {
-    const blastCovers = (remainingBlastCovers ?? defenders.map(d => shipToBlastCover(d))).filter(c => c.amount > 0)
-    const areaCovers = (remainingAreaCovers ?? defenders.map(d => shipToAreaCover(d))).filter(c => c.amount > 0)
+export const solveSingleAttacker = (dmg: Cover, allDefenders: Ship[], remainingBlastCovers?: Cover[], remainingAreaCovers?: Cover[]): IterationOutput[][] => {
+    const blastCovers = (remainingBlastCovers ?? allDefenders.map(d => shipToBlastCover(d))).filter(c => c.amount > 0)
+    const areaCovers = (remainingAreaCovers ?? allDefenders.map(d => shipToAreaCover(d))).filter(c => c.amount > 0)
+    const defenders = allDefenders.filter(d => isInCover(d.coordinate, dmg))
     return defenders.flatMap(d => {
         const blastShields = blastCovers.filter(c => isInCover(d.coordinate, c))
         const areaShields = areaCovers.filter(c => isInCover(d.coordinate, c))
@@ -23,7 +24,7 @@ export const solveSingleAttacker = (dmg: number, defenders: Ship[], remainingBla
 
         if(blastShields.length > 1 || areaShields.length > 1) {
             //complicated iteration
-            const ret = multiShieldIteration(d, dmg, blastShields, areaShields)
+            const ret = multiShieldIteration(d, dmg.amount, blastShields, areaShields)
             if(otherShips.length > 0) {
                 return ret.remainingBlastCovers.flatMap(blasts => {
                     return ret.remainingAreaCovers.flatMap(areas => {
@@ -51,7 +52,7 @@ export const solveSingleAttacker = (dmg: number, defenders: Ship[], remainingBla
                 })
             }
         } else {
-            const ret = singleShieldIteration(d, dmg, blastShields[0]?.amount || 0, areaShields[0]?.amount || 0)
+            const ret = singleShieldIteration(d, dmg.amount, blastShields[0]?.amount || 0, areaShields[0]?.amount || 0)
             const remBlastShields = blastShields.length > 0 ? [copyCoverWithAmount(blastShields[0], ret.remainingBlastCover), ...blastCovers.filter(c => c!== blastShields[0])] : blastCovers
             const remAreaShields = areaShields.length > 0 ? [copyCoverWithAmount(areaShields[0], ret.remainingAreaCover), ...areaCovers.filter(c => c!== areaShields[0])] : areaCovers
             const ret2 = {
@@ -90,7 +91,7 @@ const copyCoverWithAmount = (c: Cover, am: number): Cover => {
     }
 }
 
-const isInCover = (coordinate: Coordinate, cover: Cover): boolean => {
+export const isInCover = (coordinate: Coordinate, cover: Cover): boolean => {
     let x = coordinate.x - cover.coordinate.x;
     let y = coordinate.y - cover.coordinate.y;
     const dist = Math.sqrt(x * x + y * y);
@@ -110,6 +111,14 @@ const shipToAreaCover = (s: Ship): Cover => {
         coordinate: s.coordinate,
         radius: Modules["AreaShield"]["EffectRadiusWS"][s.areaShieldLevel || 0],
         amount: s.areaShieldHp,
+    }
+}
+
+export const destinyCover = (s: Attacker): Cover => {
+    return {
+        coordinate: s.coordinate,
+        radius: Modules["Destiny"]["EffectRadius"],
+        amount: s.dmg(),
     }
 }
 
