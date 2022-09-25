@@ -95,7 +95,7 @@ export const getDroprateToTier = (name: string, artiLvl: number) => {
 
 export const basicCalc = (bps: {current: number, target: number}, rate: number[], siblings: number) => {
     return {
-        worstCase: (bps.target-bps.current)/rate[0]/siblings,
-        bestCase: (bps.target-bps.current)/rate[1]/siblings
+        worstCase: (bps.target-bps.current)/rate[0]*siblings,
+        bestCase: (bps.target-bps.current)/rate[1]*siblings
     }
 }
