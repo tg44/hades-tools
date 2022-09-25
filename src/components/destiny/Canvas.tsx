@@ -8,7 +8,7 @@ import {
     createMiner,
     createRelicDrone,
     createTransport, fullHpByBsLevel, Ship
-} from "../utils/types";
+} from "../../utils/destiny/types";
 import AttackerOnCanvas from "./AttackerOnCanvas";
 import {useCallback, useEffect, useState} from "react";
 import {
@@ -29,7 +29,7 @@ import KonvaEventObject = Konva.KonvaEventObject;
 import BsRow from "./BsRow";
 import ShipRow from "./ShipRow";
 import AttackerRow from "./AttackerRow";
-import {aggregateOutput, chanceToDie, destinyCover, isInCover, solveSingleAttacker} from "../utils/mechanics";
+import {aggregateOutput, chanceToDie, destinyCover, isInCover, solveSingleAttacker} from "../../utils/destiny/mechanics";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 export const Item = styled(Paper)(({ theme }) => ({

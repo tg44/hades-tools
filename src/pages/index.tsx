@@ -1,15 +1,17 @@
-import type { NextPage } from 'next'
-import dynamic from "next/dynamic";
-
-
-const NoSSRCanvas = dynamic(() => import("../components/Canvas"), {
-    ssr: false,
-});
+import {NextPage} from "next";
+import {Button} from "@mui/material";
 
 const Home: NextPage = () => {
-  return (
-      <NoSSRCanvas />
-  );
+
+
+    return (
+        <>
+            {/*@ts-ignore*/}
+            <Button onClick={() => {window.location = '/destiny'}}> Destiny calc</Button>
+            {/*@ts-ignore*/}
+            <Button onClick={() => {window.location = '/research'}}> Research calc </Button>
+        </>
+    )
 }
 
-export default Home
+export default Home;

@@ -1,4 +1,4 @@
-import {Attacker, fullHpByTypeAndLevel, Ship} from "../utils/types";
+import {Attacker, fullHpByTypeAndLevel, Ship} from "../../utils/destiny/types";
 import {useCallback} from "react";
 import {
     CardHeader,

@@ -1,11 +1,9 @@
-import {fullHpByBsLevel, fullHpByTypeAndLevel, Ship} from "../utils/types";
+import {fullHpByBsLevel, fullHpByTypeAndLevel, Ship} from "../../utils/destiny/types";
 import BsRow from "./BsRow";
 import {
     CardHeader,
     FormControl,
     InputLabel,
-    ListItem,
-    ListItemText,
     MenuItem,
     Select,
     SelectChangeEvent, Stack,

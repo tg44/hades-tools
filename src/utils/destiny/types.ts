@@ -1,5 +1,5 @@
-import {default as Ships} from "../static/capital_ships.js"
-import {default as Modules} from "../static/modules.js"
+import {default as Ships} from "../../static/capital_ships.js"
+import {default as Modules} from "../../static/modules.js"
 
 export class Coordinate {
     x: number;

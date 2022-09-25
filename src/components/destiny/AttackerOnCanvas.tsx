@@ -1,7 +1,7 @@
-import {Attacker, Coordinate} from "../utils/types";
+import {Attacker, Coordinate} from "../../utils/destiny/types";
 import {Circle, Group, Image, Rect} from "react-konva";
 import useImage from "use-image";
-import {default as Modules} from "../static/modules.js"
+import {default as Modules} from "../../static/modules.js"
 import {useCallback, useState} from "react";
 import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;

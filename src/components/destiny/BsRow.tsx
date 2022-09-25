@@ -9,7 +9,7 @@ import {
     Select,
     SelectChangeEvent, Stack, TextField, Typography
 } from "@mui/material";
-import {areaShieldHp, blastShieldHp, fullHpByBsLevel, Ship} from "../utils/types";
+import {areaShieldHp, blastShieldHp, fullHpByBsLevel, Ship} from "../../utils/destiny/types";
 import {ChangeEvent, useCallback, useState} from "react";
 
 type Shields = "personal" | "area" | "blast"

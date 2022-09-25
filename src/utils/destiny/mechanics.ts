@@ -1,6 +1,6 @@
 import {Attacker, Coordinate, Ship} from "./types";
-import {groupBy} from "./helpers";
-import {default as Modules} from "../static/modules.js"
+import {groupBy} from "../helpers";
+import {default as Modules} from "../../static/modules.js"
 
 export const aggregateOutput = (outs: IterationOutput[][]) => {
     return groupBy(outs.flatMap(e => e), o => o.defenderId)
