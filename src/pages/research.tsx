@@ -1,6 +1,13 @@
 import {NextPage} from "next";
 import ModuleIconSet from "../components/ModuleIconSet";
-import {basicCalc, getDroprateToTier, getModuleInfo, getSiblings, ModuleArtifactInfo} from "../utils/artifacts";
+import {
+    basicCalc,
+    getDroprateToTier,
+    getModuleInfo,
+    getSiblings,
+    ModuleArtifactInfo,
+    nonBasicCalc
+} from "../utils/artifacts";
 import {ChangeEvent, useCallback, useMemo, useState} from "react";
 import {
     CardHeader,
@@ -16,7 +23,7 @@ import {
 import {secondsToStr} from "../utils/helpers";
 
 
-const Row = (props: {module: ModuleArtifactInfo, bps: number, targetBps: number, setBps: (bps: number) => void, setTargetBps: (bps: number) => void}) => {
+const Row = (props: {module: ModuleArtifactInfo, bps: number, targetBps: number, setBps: (bps: number) => void, setTargetBps: (bps: number) => void, isSelected: boolean}) => {
 
     const handleBpsChange = useCallback((event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const level = event.target.value as unknown as number
@@ -28,10 +35,15 @@ const Row = (props: {module: ModuleArtifactInfo, bps: number, targetBps: number,
         props.setTargetBps(level);
     }, [props]);
 
+    const currLvl = useMemo(() => `currentMaxLvl: ${props.module.milestones.findIndex(m => m > props.bps) === -1 ? 'max' : props.module.milestones.findIndex(m => m > props.bps)}`, [props])
+    const targetLvl = useMemo(() => `targetMaxLvl: ${props.module.milestones.findIndex(m => m > props.targetBps) === -1 ? 'max' : props.module.milestones.findIndex(m => m > props.targetBps)}`, [props])
 
     return (
         <Stack direction="row" justifyContent="flex-start" alignItems="center" spacing={2}>
-            <CardHeader title={props.module.name} subheader={`currentMaxLvl: ${props.module.milestones.findIndex(m => m > props.bps)}, targetMaxLvl: ${props.module.milestones.findIndex(m => m > props.targetBps) === -1 ? 12 : props.module.milestones.findIndex(m => m > props.targetBps)}`} />
+            <CardHeader
+                title={props.module.name}
+                subheader={<>{currLvl} {props.isSelected && <><br/>{targetLvl}</>} </>}
+            />
             <FormControl>
                 <TextField
                     value={props.bps}
@@ -40,14 +52,16 @@ const Row = (props: {module: ModuleArtifactInfo, bps: number, targetBps: number,
                     onChange={handleBpsChange}
                 ></TextField>
             </FormControl>
-            <FormControl>
-                <TextField
-                    value={props.targetBps}
-                    label="Target BPS"
-                    type="number"
-                    onChange={handleTargetBpsChange}
-                ></TextField>
-            </FormControl>
+            {props.isSelected &&
+                <FormControl>
+                    <TextField
+                        value={props.targetBps}
+                        label="Target BPS"
+                        type="number"
+                        onChange={handleTargetBpsChange}
+                    ></TextField>
+                </FormControl>
+            }
         </Stack>
     )
 }
@@ -56,15 +70,17 @@ const Home: NextPage = () => {
     const [selected, setSelected] = useState<ModuleArtifactInfo | undefined>()
     const [level, setLvl] = useState<number>(4)
     const [bonus, setBonus] = useState<number>(0)
-    const [bps, setBps] = useState<number>(0)
+    const [bps, setBps] = useState<number[]>([])
     const [targetBps, setTargetBps] = useState<number>(0)
     const mods = useMemo(() => {return getModuleInfo().sort((a, b) => a.TID.localeCompare(b.TID))}, [])
     const siblings = useMemo(() => {
         if(!selected) {
             return []
         }
-        return getSiblings(selected.name)
-    }, [selected])
+        const sibs = getSiblings(selected.name)
+        setBps(Array(sibs.length).fill(0))
+        return sibs
+    }, [selected, setBps])
 
     const handleLevelChange = useCallback((event: SelectChangeEvent) => {
         const level = event.target.value as unknown as number
@@ -82,6 +98,12 @@ const Home: NextPage = () => {
             setLvl(Math.max(m.tier+2, 4));
         }
     }, [level, setLvl, setSelected]);
+    const setBpsToIdx = useCallback((idx: number) => (newBps: number) => {
+        const newBpsArr = Array(siblings.length).fill(0)
+        bps.forEach((b, idx) => newBpsArr[idx] = b)
+        newBpsArr[idx] = newBps
+        setBps(newBpsArr)
+    }, [siblings, bps, setBps])
 
     return (
         <Grid container spacing={2}>
@@ -128,13 +150,16 @@ const Home: NextPage = () => {
                                 return ""
                             }
                             const drops = d.drop ?? [0,0]
-                            const basicOut = basicCalc({current: bps, target: targetBps}, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)], siblings.length)
-                            return `Artifact (and time) need; ${Math.ceil(basicOut.worstCase)} (${secondsToStr(basicOut.worstCase * d.researchTime)}) - ${Math.ceil(basicOut.bestCase)} (${secondsToStr(basicOut.bestCase * d.researchTime)})`
+                            const oldout = basicCalc({current: bps[siblings.findIndex(s => s.name===selected.name)], target: targetBps}, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)], siblings.length)
+                            const out = nonBasicCalc(siblings, bps, selected, targetBps, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)])
+                            return `Artifact (and time) need; ${Math.ceil(out.worstCase)} (${secondsToStr(out.worstCase * d.researchTime)}) - ${Math.ceil(out.bestCase)} (${secondsToStr(out.bestCase * d.researchTime)})`
                         })()}
                     </p>
-                    <Row key={selected.name} module={selected} bps={bps} targetBps={targetBps} setBps={setBps} setTargetBps={setTargetBps}/>
+                    {!!siblings.length && siblings.map((s, idx) =>
+                        <Row key={s.name} module={s} bps={bps[idx] || 0} targetBps={targetBps} setBps={setBpsToIdx(idx)} setTargetBps={setTargetBps} isSelected={s.name === selected.name}/>
+                    )}
                 </>}
-                {/*!!siblings.length && siblings.map(s => <Row key={s.name} module={s} bps={0} targetBps={0} setBps={() => {}} setTargetBps={() => {}}/>)*/}
+
 
             </Grid>
         </Grid>

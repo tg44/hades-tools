@@ -7,9 +7,9 @@ const Home: NextPage = () => {
     return (
         <>
             {/*@ts-ignore*/}
-            <Button onClick={() => {window.location = '/destiny'}}> Destiny calc</Button>
+            <Button variant="contained" onClick={() => {window.location = '/destiny'}}> Destiny calc</Button>
             {/*@ts-ignore*/}
-            <Button onClick={() => {window.location = '/research'}}> Research calc </Button>
+            <Button variant="contained" onClick={() => {window.location = '/research'}}> Research calc </Button>
         </>
     )
 }

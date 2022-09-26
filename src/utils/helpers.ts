@@ -40,3 +40,45 @@ export function secondsToStr (inSeconds: number) {
     }
     return 'less than a second'; //'just now' //or other string you like;
 }
+
+export function sum(arr: number[]): number {
+    return arr.reduce<number>((accumulator, current) => {
+        return accumulator + current;
+    }, 0);
+}
+
+export function sumBy<A>(arr: A[], fn: (e: A) => number): number {
+    return sum(arr.map(fn))
+}
+
+export function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+    return value !== null && value !== undefined;
+}
+
+export function minBy<A>(arr: A[], fn: (e: A) => number | unknown | null) {
+    return extremumBy(arr, fn, Math.min);
+}
+
+export function maxBy<A>(arr: A[], fn: (e: A) => number | unknown | null) {
+    return extremumBy(arr, fn, Math.max);
+}
+
+type Pair<A, B> = [B , A]
+type PairWithUnknown<A, B> = [B | unknown | null, A]
+
+export function extremumBy<A, B>(arr: A[], pluck: (e: A) => B | unknown | null, extremum: (e1: B, e2: B) => B): A | undefined {
+    return arr.reduce((best: Pair<A, B> | null, next: A) => {
+        const pair: PairWithUnknown<A, B> = [ pluck(next), next ];
+        if(!notEmpty(pair[0])){
+            return best
+        }
+        const knownPair = pair as Pair<A,B>
+        if (!best) {
+            return knownPair;
+        } else if (extremum.apply(null, [ best[0], knownPair[0] ]) == best[0]) {
+            return best;
+        } else {
+            return knownPair;
+        }
+    },null)?.[1];
+}

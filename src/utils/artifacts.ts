@@ -1,6 +1,7 @@
 import {default as Modules} from "../static/modules.js"
 import {default as Artifacts} from "../static/artifacts.js"
 import {ChangeEvent} from "react";
+import {minBy, sumBy} from "./helpers";
 
 export interface ModuleArtifactInfo {
     name: string,
@@ -98,4 +99,56 @@ export const basicCalc = (bps: {current: number, target: number}, rate: number[]
         worstCase: (bps.target-bps.current)/rate[0]*siblings,
         bestCase: (bps.target-bps.current)/rate[1]*siblings
     }
+}
+
+interface ArtiResult {
+    worstCase: number,
+    bestCase: number,
+}
+
+interface TempModuleCalcData { bestCaseArtiNeedToTarget: number; worstCaseArtiNeedToTarget: number; module: ModuleArtifactInfo; currentBps: number; selcted: boolean; target: number }
+
+export const nonBasicCalc = (siblings: ModuleArtifactInfo[], bps: number[], selected: ModuleArtifactInfo, target: number, rate: number[]) => {
+    const data: TempModuleCalcData[] = siblings.map((s, idx) => {
+        const isSelected = s.name === selected.name;
+        const currentBps = bps[idx] ?? 0
+        const currentTarget = isSelected ? target : s.milestones[s.milestones.length-1]
+        const t = currentTarget-currentBps > 0 ? currentTarget-currentBps : 0
+        return {
+            module: s,
+            currentBps: currentBps,
+            selcted: isSelected,
+            target: currentTarget,
+            worstCaseArtiNeedToTarget: Math.ceil(t/rate[0]),
+            bestCaseArtiNeedToTarget: Math.ceil(t/rate[1]),
+        }
+    })
+
+    const rec = (data: TempModuleCalcData[], acc: (ArtiResult & {siblings: number})[]): ArtiResult => {
+        const min = minBy(data, d => d.worstCaseArtiNeedToTarget)
+        if(!min) {
+            return {
+                worstCase: 0,
+                bestCase: 0
+            }
+        }
+        //console.log(min.module.name, min.worstCaseArtiNeedToTarget)
+        const thisArtiNeed = {
+            worstCase: min.worstCaseArtiNeedToTarget - sumBy(acc, a => a.worstCase),
+            bestCase: min.bestCaseArtiNeedToTarget - sumBy(acc, a => a.bestCase),
+            siblings: data.length
+        }
+        //console.log(min.module.name, min.worstCaseArtiNeedToTarget, thisArtiNeed)
+        const newAcc = [thisArtiNeed, ...acc]
+        if(min.module.name === selected.name) {
+            return {
+                worstCase: sumBy(newAcc, a => a.worstCase * a.siblings),
+                bestCase: sumBy(newAcc, a => a.bestCase * a.siblings),
+            }
+        } else {
+            return rec(data.filter(e => e !== min),newAcc)
+        }
+    }
+
+    return rec(data, [])
 }
