@@ -141,7 +141,7 @@ const Home: NextPage = () => {
                     <p>Selected mod siblings: {siblings.map(m => m.name).join(", ")}</p>
                     <p>{(() => {
                         const drops = getDroprateToTier(selected.name, level)?.drop ?? [0,0]
-                        return `Drops per artifact; ${drops[0]}(+${drops[0]*bonus/100}) - ${drops[1]}(+${drops[1]*bonus/100})`
+                        return `Drops per artifact; ${drops[0]}(+${Math.round(drops[0]*bonus/100)}) - ${drops[1]}(+${Math.round(drops[1]*bonus/100)})`
                     })()}</p>
                     <p>
                         {(() => {
@@ -150,8 +150,8 @@ const Home: NextPage = () => {
                                 return ""
                             }
                             const drops = d.drop ?? [0,0]
-                            const oldout = basicCalc({current: bps[siblings.findIndex(s => s.name===selected.name)], target: targetBps}, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)], siblings.length)
-                            const out = nonBasicCalc(siblings, bps, selected, targetBps, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)])
+                            //const oldout = basicCalc({current: bps[siblings.findIndex(s => s.name===selected.name)], target: targetBps}, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)], siblings.length)
+                            const out = nonBasicCalc(siblings, bps, selected, targetBps, [Math.round(drops[0]*(1+bonus/100)), Math.round(drops[1]*(1+bonus/100))])
                             const avg = Math.ceil((out.worstCase+out.bestCase)/2)
                             return <>
                                 Artifact need; <br/>
