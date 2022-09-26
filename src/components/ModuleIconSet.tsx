@@ -10,7 +10,7 @@ const url = (iconName: string) => `https://github.com/userXinos/HadesSpace/blob/
 
 const ModuleIconSet = (props: {mods: ModuleArtifactInfo[], selected: ModuleArtifactInfo | undefined, setSelected: (module: ModuleArtifactInfo) => void}) => {
     return (
-        <ImageList sx={{ width: 500, height: 500 }} cols={12} rowHeight={40}>
+        <ImageList cols={10}>
             {props.mods.map((item) => (
                 <ImageListItem
                     key={item.name}

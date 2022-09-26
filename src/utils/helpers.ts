@@ -18,11 +18,7 @@ export function secondsToStr (inSeconds: number) {
     }
 
     var temp = inSeconds;
-    var years = Math.floor(temp / 31536000);
-    if (years) {
-        return years + 'y' + numberEnding(years);
-    }
-    var days = Math.floor((temp %= 31536000) / 86400);
+    var days = Math.floor(temp / 86400);
     if (days) {
         return days + 'd' + numberEnding(days);
     }

@@ -110,7 +110,7 @@ const Home: NextPage = () => {
             <Grid item>
             <ModuleIconSet mods={mods} selected={selected} setSelected={handleModuleChange}/>
             </Grid>
-            <Grid item xs={6} style={{marginTop: '12px'}}>
+            <Grid item style={{marginTop: '12px'}}>
                 <Stack direction="row" justifyContent="flex-start" alignItems="center" spacing={2}>
                     <FormControl fullWidth>
                         <InputLabel>Artifact Lvl</InputLabel>
@@ -141,7 +141,7 @@ const Home: NextPage = () => {
                     <p>Selected mod siblings: {siblings.map(m => m.name).join(", ")}</p>
                     <p>{(() => {
                         const drops = getDroprateToTier(selected.name, level)?.drop ?? [0,0]
-                        return `Drops per artifact; ${drops[0]}(+${drops[0]*bonus/100})-${drops[1]}(+${drops[1]*bonus/100})`
+                        return `Drops per artifact; ${drops[0]}(+${drops[0]*bonus/100}) - ${drops[1]}(+${drops[1]*bonus/100})`
                     })()}</p>
                     <p>
                         {(() => {
@@ -152,7 +152,15 @@ const Home: NextPage = () => {
                             const drops = d.drop ?? [0,0]
                             const oldout = basicCalc({current: bps[siblings.findIndex(s => s.name===selected.name)], target: targetBps}, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)], siblings.length)
                             const out = nonBasicCalc(siblings, bps, selected, targetBps, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)])
-                            return `Artifact (and time) need; ${Math.ceil(out.worstCase)} (${secondsToStr(out.worstCase * d.researchTime)}) - ${Math.ceil(out.bestCase)} (${secondsToStr(out.bestCase * d.researchTime)})`
+                            const avg = Math.ceil((out.worstCase+out.bestCase)/2)
+                            return <>
+                                Artifact need; <br/>
+                                <ul>
+                                    <li>Avg; {`${avg} (${secondsToStr(avg * d.researchTime)})`}</li>
+                                    <li>Worst; {`${out.worstCase} (${secondsToStr(out.worstCase * d.researchTime)})`}</li>
+                                    <li>Best; {`${out.bestCase} (${secondsToStr(out.bestCase * d.researchTime)})`}</li>
+                                </ul>
+                                </>
                         })()}
                     </p>
                     {!!siblings.length && siblings.map((s, idx) =>
