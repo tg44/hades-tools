@@ -151,7 +151,7 @@ const Home: NextPage = () => {
                             }
                             const drops = d.drop ?? [0,0]
                             //const oldout = basicCalc({current: bps[siblings.findIndex(s => s.name===selected.name)], target: targetBps}, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)], siblings.length)
-                            const out = nonBasicCalc(siblings, bps, selected, targetBps, [Math.round(drops[0]*(1+bonus/100)), Math.round(drops[1]*(1+bonus/100))])
+                            const out = nonBasicCalc(siblings, bps, selected, targetBps, [Math.floor(drops[0]*(1+bonus/100)), Math.floor(drops[1]*(1+bonus/100))])
                             const avg = Math.ceil((out.worstCase+out.bestCase)/2)
                             return <>
                                 Artifact need; <br/>
