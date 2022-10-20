@@ -10,6 +10,7 @@ import {
 } from "../utils/artifacts";
 import {ChangeEvent, useCallback, useMemo, useState} from "react";
 import {
+    Button,
     CardHeader,
     FormControl,
     Grid,
@@ -20,7 +21,8 @@ import {
     Stack, TextField,
     Typography
 } from "@mui/material";
-import {secondsToStr} from "../utils/helpers";
+import {maxBy, secondsToStr} from "../utils/helpers";
+import Layout, {pages} from "../components/Layout";
 
 
 const Row = (props: {module: ModuleArtifactInfo, bps: number, targetBps: number, setBps: (bps: number) => void, setTargetBps: (bps: number) => void, isSelected: boolean}) => {
@@ -39,7 +41,7 @@ const Row = (props: {module: ModuleArtifactInfo, bps: number, targetBps: number,
     const targetLvl = useMemo(() => `targetMaxLvl: ${props.module.milestones.findIndex(m => m > props.targetBps) === -1 ? 'max' : props.module.milestones.findIndex(m => m > props.targetBps)}`, [props])
 
     return (
-        <Stack direction="row" justifyContent="flex-start" alignItems="center" spacing={2}>
+        <Stack sx={{ flexDirection: { xs: "column", md: "row"} }} justifyContent="flex-start" alignItems="center" spacing={2}>
             <CardHeader
                 title={props.module.name}
                 subheader={<>{currLvl} {props.isSelected && <><br/>{targetLvl}</>} </>}
@@ -106,71 +108,84 @@ const Home: NextPage = () => {
     }, [siblings, bps, setBps])
 
     return (
-        <Grid container spacing={2}>
-            <Grid item>
-            <ModuleIconSet mods={mods} selected={selected} setSelected={handleModuleChange}/>
-            </Grid>
-            <Grid item style={{marginTop: '12px'}}>
-                <Stack direction="row" justifyContent="flex-start" alignItems="center" spacing={2}>
-                    <FormControl fullWidth>
-                        <InputLabel>Artifact Lvl</InputLabel>
-                        <Select
-                            value={level.toString()}
-                            label="Level"
-                            onChange={handleLevelChange}
-                            fullWidth
-                        >
-                            {Array.from(Array(12-Math.max((selected?.tier ?? 0)+2, 4)).keys()).map(l => l+Math.max((selected?.tier ?? 0)+2, 4)).map(l => (<MenuItem key={l} value={l}>{l}</MenuItem>))}
-                        </Select>
-                    </FormControl>
-                    <FormControl fullWidth>
-                        <InputLabel>Bonus</InputLabel>
-                        <Select
-                            value={bonus.toString()}
-                            label="Level"
-                            onChange={handleBonusChange}
-                            fullWidth
-                        >
-                            {Array.from(Array(21).keys()).map(l => (<MenuItem key={l} value={l}>{`${l}%`}</MenuItem>))}
-                        </Select>
-                    </FormControl>
-                </Stack>
-                {selected && <>
-                    <p>Selected mod: {selected.name}</p>
-                    <p>Selected mod tier: {selected.tier + 2}</p>
-                    <p>Selected mod siblings: {siblings.map(m => m.name).join(", ")}</p>
-                    <p>{(() => {
-                        const drops = getDroprateToTier(selected.name, level)?.drop ?? [0,0]
-                        return `Drops per artifact; ${drops[0]}(+${Math.round(drops[0]*bonus/100)}) - ${drops[1]}(+${Math.round(drops[1]*bonus/100)})`
-                    })()}</p>
-                    <p>
-                        {(() => {
-                            const d = getDroprateToTier(selected.name, level)
-                            if(!d){
-                                return ""
-                            }
-                            const drops = d.drop ?? [0,0]
-                            //const oldout = basicCalc({current: bps[siblings.findIndex(s => s.name===selected.name)], target: targetBps}, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)], siblings.length)
-                            const out = nonBasicCalc(siblings, bps, selected, targetBps, [Math.floor(drops[0]*(1+bonus/100)), Math.floor(drops[1]*(1+bonus/100))])
-                            const avg = Math.ceil((out.worstCase+out.bestCase)/2)
-                            return <>
-                                Artifact need; <br/>
-                                <ul>
-                                    <li>Avg; {`${avg} (${secondsToStr(avg * d.researchTime)})`}</li>
-                                    <li>Worst; {`${out.worstCase} (${secondsToStr(out.worstCase * d.researchTime)})`}</li>
-                                    <li>Best; {`${out.bestCase} (${secondsToStr(out.bestCase * d.researchTime)})`}</li>
-                                </ul>
-                                </>
-                        })()}
-                    </p>
-                    {!!siblings.length && siblings.map((s, idx) =>
-                        <Row key={s.name} module={s} bps={bps[idx] || 0} targetBps={targetBps} setBps={setBpsToIdx(idx)} setTargetBps={setTargetBps} isSelected={s.name === selected.name}/>
-                    )}
-                </>}
+        <Layout pages={pages}>
+            <Grid container spacing={2}>
+                <Grid item>
+                    <ModuleIconSet mods={mods} selected={selected} setSelected={handleModuleChange}/>
+                </Grid>
+                <Grid item style={{marginTop: '12px'}} sx={{minWidth: { xs: "100%", md: "50%"}}}>
+                    <Stack sx={{ flexDirection: { xs: "column", md: "row"} }} alignItems="center">
+                        <FormControl fullWidth style={{marginTop: '12px'}}>
+                            <InputLabel>Artifact Lvl</InputLabel>
+                            <Select
+                                value={level.toString()}
+                                label="Level"
+                                onChange={handleLevelChange}
+                                fullWidth
+                            >
+                                {Array.from(Array(12-Math.max((selected?.tier ?? 0)+2, 4)).keys()).map(l => l+Math.max((selected?.tier ?? 0)+2, 4)).map(l => (<MenuItem key={l} value={l}>{l}</MenuItem>))}
+                            </Select>
+                        </FormControl>
+                        <FormControl fullWidth style={{marginTop: '12px'}}>
+                            <InputLabel>Bonus</InputLabel>
+                            <Select
+                                value={bonus.toString()}
+                                label="Level"
+                                onChange={handleBonusChange}
+                                fullWidth
+                            >
+                                {Array.from(Array(21).keys()).map(l => (<MenuItem key={l} value={l}>{`${l}%`}</MenuItem>))}
+                            </Select>
+                        </FormControl>
+                    </Stack>
+                    {selected && <>
+                        <p>Selected mod: {selected.name}</p>
+                        <p>Selected mod tier: {selected.tier + 2}</p>
+                        <p>Selected mod siblings: {siblings.map(m => m.name).join(", ")}</p>
+                        <p>{(() => {
+                            const drops = getDroprateToTier(selected.name, level)?.drop ?? [0,0]
+                            return `Drops per artifact; ${drops[0]}(+${Math.round(drops[0]*bonus/100)}) - ${drops[1]}(+${Math.round(drops[1]*bonus/100)})`
+                        })()}</p>
+                        <p>
+                            {(() => {
+                                const d = getDroprateToTier(selected.name, level)
+                                if(!d){
+                                    return ""
+                                }
+                                const drops = d.drop ?? [0,0]
+                                //const oldout = basicCalc({current: bps[siblings.findIndex(s => s.name===selected.name)], target: targetBps}, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)], siblings.length)
+                                const out = nonBasicCalc(siblings, bps, selected, targetBps, [Math.floor(drops[0]*(1+bonus/100)), Math.floor(drops[1]*(1+bonus/100))])
+                                const avg = Math.ceil((out.worstCase+out.bestCase)/2)
+                                return <>
+                                    Artifact need; <br/>
+                                    <ul>
+                                        <li>Avg; {`${avg} (${secondsToStr(avg * d.researchTime)})`}</li>
+                                        <li>Worst; {`${out.worstCase} (${secondsToStr(out.worstCase * d.researchTime)})`}</li>
+                                        <li>Best; {`${out.bestCase} (${secondsToStr(out.bestCase * d.researchTime)})`}</li>
+                                    </ul>
+                                    </>
+                            })()}
+                        </p>
+                        {!!siblings.length && siblings.map((s, idx) =>
+                            <Row key={s.name} module={s} bps={bps[idx] || 0} targetBps={targetBps} setBps={setBpsToIdx(idx)} setTargetBps={setTargetBps} isSelected={s.name === selected.name}/>
+                        )}
+
+                        {!!siblings.length &&
+                            <div style={{minWidth: '100%', justifyContent: 'center', display: 'flex', paddingTop: '1rem'}}>
+                            <Button variant='contained' onClick={() => {
+                                const max = maxBy(bps, x => x)
+                                setBps(bps.map(x => max ?? x))
+                            }}>
+                                Even out current BPS to the max
+                            </Button>
+                            </div>
+                        }
+                    </>}
 
 
+                </Grid>
             </Grid>
-        </Grid>
+        </Layout>
     );
 }
 

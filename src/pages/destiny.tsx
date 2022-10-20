@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 import dynamic from "next/dynamic";
+import Layout, {pages} from "../components/Layout";
 
 
 const NoSSRCanvas = dynamic(() => import("../components/destiny/Canvas"), {
@@ -8,7 +9,9 @@ const NoSSRCanvas = dynamic(() => import("../components/destiny/Canvas"), {
 
 const Home: NextPage = () => {
   return (
-      <NoSSRCanvas />
+      <Layout pages={pages}>
+        <NoSSRCanvas />
+      </Layout>
   );
 }
 

@@ -9,6 +9,7 @@ export interface ModuleArtifactInfo {
     milestones: number[],
     tier: number,
     icon: string,
+    slotType: string,
 }
 
 interface Artifact {
@@ -60,6 +61,7 @@ export const getModuleInfo = () => {
                 milestones: Array.isArray(mod.UnlockBlueprints) ? mod.UnlockBlueprints : [mod.UnlockBlueprints ?? 1],
                 tier: mod.AwardLevel,
                 icon: mod.Icon,
+                slotType: mod.SlotType,
             } as ModuleArtifactInfo
         } else return null
     }).filter((m): m is ModuleArtifactInfo => !!m)
