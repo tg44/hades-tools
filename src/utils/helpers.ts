@@ -17,24 +17,31 @@ export function secondsToStr (inSeconds: number) {
         return ''
     }
 
+    let str = []
+
     var temp = inSeconds;
     var days = Math.floor(temp / 86400);
     if (days) {
-        return days + 'd' + numberEnding(days);
+        str.push(days + 'd' + numberEnding(days));
     }
     var hours = Math.floor((temp %= 86400) / 3600);
     if (hours) {
-        return hours + 'h' + numberEnding(hours);
+        str.push(hours + 'h' + numberEnding(hours));
     }
     var minutes = Math.floor((temp %= 3600) / 60);
     if (minutes) {
-        return minutes + 'm' + numberEnding(minutes);
+        str.push(minutes + 'm' + numberEnding(minutes));
     }
     var seconds = temp % 60;
     if (seconds) {
-        return seconds + 's' + numberEnding(seconds);
+        str.push(seconds + 's' + numberEnding(seconds));
     }
-    return 'less than a second'; //'just now' //or other string you like;
+
+    if(!str.length){
+        return 'less than a second'; //'just now' //or other string you like;
+    } else {
+        return str.join(" ");
+    }
 }
 
 export function sum(arr: number[]): number {

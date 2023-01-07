@@ -70,8 +70,8 @@ const Row = (props: {module: ModuleArtifactInfo, bps: number, targetBps: number,
 
 const Home: NextPage = () => {
     const [selected, setSelected] = useState<ModuleArtifactInfo | undefined>()
-    const [level, setLvl] = useState<number>(4)
-    const [bonus, setBonus] = useState<number>(0)
+    const [level, setLvl] = useState<number>(10)
+    const [bonus, setBonus] = useState<number>(20)
     const [bps, setBps] = useState<number[]>([])
     const [targetBps, setTargetBps] = useState<number>(0)
     const mods = useMemo(() => {return getModuleInfo().sort((a, b) => a.TID.localeCompare(b.TID))}, [])
@@ -144,7 +144,7 @@ const Home: NextPage = () => {
                         <p>Selected mod siblings: {siblings.map(m => m.name).join(", ")}</p>
                         <p>{(() => {
                             const drops = getDroprateToTier(selected.name, level)?.drop ?? [0,0]
-                            return `Drops per artifact; ${drops[0]}(+${Math.round(drops[0]*bonus/100)}) - ${drops[1]}(+${Math.round(drops[1]*bonus/100)})`
+                            return `Drops per artifact; ${drops[0]}(+${Math.floor(drops[0]*bonus/100)}) - ${drops[1]}(+${Math.floor(drops[1]*bonus/100)})`
                         })()}</p>
                         <p>
                             {(() => {
@@ -154,12 +154,11 @@ const Home: NextPage = () => {
                                 }
                                 const drops = d.drop ?? [0,0]
                                 //const oldout = basicCalc({current: bps[siblings.findIndex(s => s.name===selected.name)], target: targetBps}, [drops[0]*(1+bonus/100), drops[1]*(1+bonus/100)], siblings.length)
-                                const out = nonBasicCalc(siblings, bps, selected, targetBps, [Math.floor(drops[0]*(1+bonus/100)), Math.floor(drops[1]*(1+bonus/100))])
-                                const avg = Math.ceil((out.worstCase+out.bestCase)/2)
+                                const out = nonBasicCalc(siblings, bps, selected, targetBps, drops, bonus)
                                 return <>
                                     Artifact need; <br/>
                                     <ul>
-                                        <li>Avg; {`${avg} (${secondsToStr(avg * d.researchTime)})`}</li>
+                                        <li>Avg; {`${out.avgCase} (${secondsToStr(out.avgCase * d.researchTime)})`}</li>
                                         <li>Worst; {`${out.worstCase} (${secondsToStr(out.worstCase * d.researchTime)})`}</li>
                                         <li>Best; {`${out.bestCase} (${secondsToStr(out.bestCase * d.researchTime)})`}</li>
                                     </ul>

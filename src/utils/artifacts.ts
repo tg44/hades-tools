@@ -106,12 +106,14 @@ export const basicCalc = (bps: {current: number, target: number}, rate: number[]
 interface ArtiResult {
     worstCase: number,
     bestCase: number,
+    avgCase: number,
 }
 
-interface TempModuleCalcData { bestCaseArtiNeedToTarget: number; worstCaseArtiNeedToTarget: number; module: ModuleArtifactInfo; currentBps: number; selcted: boolean; target: number }
+interface TempModuleCalcData { bestCaseArtiNeedToTarget: number; worstCaseArtiNeedToTarget: number; avgCaseArtiNeedToTarget: number; module: ModuleArtifactInfo; currentBps: number; selcted: boolean; target: number }
 
-export const nonBasicCalc = (siblings: ModuleArtifactInfo[], bps: number[], selected: ModuleArtifactInfo, target: number, rate: number[]) => {
+export const nonBasicCalc = (siblings: ModuleArtifactInfo[], bps: number[], selected: ModuleArtifactInfo, target: number, drops: number[], bonus: number) => {
     const data: TempModuleCalcData[] = siblings.map((s, idx) => {
+        const allPossibleDrops = Array.from({length:drops[1] - drops[0] + 1},(v,k)=>Math.floor((k+drops[0])*(1+bonus/100)))
         const isSelected = s.name === selected.name;
         const currentBps = bps[idx] ?? 0
         const currentTarget = isSelected ? target : s.milestones[s.milestones.length-1]
@@ -121,8 +123,9 @@ export const nonBasicCalc = (siblings: ModuleArtifactInfo[], bps: number[], sele
             currentBps: currentBps,
             selcted: isSelected,
             target: currentTarget,
-            worstCaseArtiNeedToTarget: Math.ceil(t/rate[0]),
-            bestCaseArtiNeedToTarget: Math.ceil(t/rate[1]),
+            worstCaseArtiNeedToTarget: Math.ceil(t/allPossibleDrops[0]),
+            bestCaseArtiNeedToTarget: Math.ceil(t/allPossibleDrops[allPossibleDrops.length - 1]),
+            avgCaseArtiNeedToTarget: Math.ceil(t/(allPossibleDrops.reduce((a, b) => a+b, 0)/(allPossibleDrops.length)))
         }
     })
 
@@ -131,13 +134,15 @@ export const nonBasicCalc = (siblings: ModuleArtifactInfo[], bps: number[], sele
         if(!min) {
             return {
                 worstCase: 0,
-                bestCase: 0
+                bestCase: 0,
+                avgCase: 0,
             }
         }
         //console.log(min.module.name, min.worstCaseArtiNeedToTarget)
         const thisArtiNeed = {
             worstCase: min.worstCaseArtiNeedToTarget - sumBy(acc, a => a.worstCase),
             bestCase: min.bestCaseArtiNeedToTarget - sumBy(acc, a => a.bestCase),
+            avgCase: min.avgCaseArtiNeedToTarget - sumBy(acc, a => a.avgCase),
             siblings: data.length
         }
         //console.log(min.module.name, min.worstCaseArtiNeedToTarget, thisArtiNeed)
@@ -146,6 +151,7 @@ export const nonBasicCalc = (siblings: ModuleArtifactInfo[], bps: number[], sele
             return {
                 worstCase: sumBy(newAcc, a => a.worstCase * a.siblings),
                 bestCase: sumBy(newAcc, a => a.bestCase * a.siblings),
+                avgCase: sumBy(newAcc, a => a.avgCase * a.siblings),
             }
         } else {
             return rec(data.filter(e => e !== min),newAcc)
