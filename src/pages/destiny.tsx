@@ -1,18 +1,17 @@
-import type { NextPage } from 'next'
+import type {NextPage} from "next";
 import dynamic from "next/dynamic";
 import Layout, {pages} from "../components/Layout";
 
-
 const NoSSRCanvas = dynamic(() => import("../components/destiny/Canvas"), {
-    ssr: false,
+	ssr: false,
 });
 
 const Home: NextPage = () => {
-  return (
-      <Layout pages={pages}>
-        <NoSSRCanvas />
-      </Layout>
-  );
-}
+	return (
+		<Layout pages={pages}>
+			<NoSSRCanvas />
+		</Layout>
+	);
+};
 
-export default Home
+export default Home;

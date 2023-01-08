@@ -1,32 +1,37 @@
 {
-  "name": "hades-destiny-calc",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@emotion/react": "^11.9.3",
-    "@emotion/styled": "^11.9.3",
-    "@mui/icons-material": "^5.8.4",
-    "@mui/material": "^5.9.0",
-    "konva": "^8.3.10",
-    "next": "12.2.2",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-konva": "^18.2.1",
-    "styled-components": "^5.3.6",
-    "use-image": "^1.0.12"
-  },
-  "devDependencies": {
-    "@types/node": "18.0.3",
-    "@types/react": "18.0.15",
-    "@types/react-dom": "18.0.6",
-    "eslint": "8.19.0",
-    "eslint-config-next": "12.2.2",
-    "typescript": "4.7.4"
-  }
+	"name": "hades-destiny-calc",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint",
+		"format": "npm run format:prettier -- --write",
+		"format:check": "npm run format:prettier -- --check",
+		"format:prettier": "prettier \"./**/*.{ts,tsx,js,jsx,json,css,md,yml,yaml,graphql}\"",
+		"precommit": "npm run format && npm run lint && npm run build"
+	},
+	"dependencies": {
+		"@emotion/react": "^11.9.3",
+		"@emotion/styled": "^11.9.3",
+		"@mui/icons-material": "^5.8.4",
+		"@mui/material": "^5.9.0",
+		"konva": "^8.3.10",
+		"next": "12.2.2",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"react-konva": "^18.2.1",
+		"styled-components": "^5.3.6",
+		"use-image": "^1.0.12"
+	},
+	"devDependencies": {
+		"@types/node": "18.0.3",
+		"@types/react": "18.0.15",
+		"@types/react-dom": "18.0.6",
+		"eslint": "8.19.0",
+		"eslint-config-next": "12.2.2",
+		"prettier": "^2.8.2",
+		"typescript": "4.7.4"
+	}
 }
