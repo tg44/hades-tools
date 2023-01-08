@@ -20,6 +20,11 @@ export const pages = [
         name: 'Research Calculator',
         description: 'A simple calculator to help you find out how many blueprints, artifacts, time needed to get your module upgrade goals.',
         link: '/research',
+    },
+    {
+        name: 'Trader Calculator',
+        description: 'A calculator that helps you with trade rate optimization.',
+        link: '/trade',
     }
 ]
 
