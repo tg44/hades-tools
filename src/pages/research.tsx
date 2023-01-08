@@ -144,7 +144,7 @@ const Home: NextPage = () => {
                         <p>Selected mod siblings: {siblings.map(m => m.name).join(", ")}</p>
                         <p>{(() => {
                             const drops = getDroprateToTier(selected.name, level)?.drop ?? [0,0]
-                            return `Drops per artifact; ${drops[0]}(+${Math.floor(drops[0]*bonus/100)}) - ${drops[1]}(+${Math.floor(drops[1]*bonus/100)})`
+                            return `Drops per artifact; ${drops[0]}(+${(drops[0]*bonus/100).toLocaleString('en-us', {maximumFractionDigits: 2})}) - ${drops[1]}(+${(drops[1]*bonus/100).toLocaleString('en-us', {maximumFractionDigits: 2})})`
                         })()}</p>
                         <p>
                             {(() => {

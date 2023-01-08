@@ -113,7 +113,7 @@ interface TempModuleCalcData { bestCaseArtiNeedToTarget: number; worstCaseArtiNe
 
 export const nonBasicCalc = (siblings: ModuleArtifactInfo[], bps: number[], selected: ModuleArtifactInfo, target: number, drops: number[], bonus: number) => {
     const data: TempModuleCalcData[] = siblings.map((s, idx) => {
-        const allPossibleDrops = Array.from({length:drops[1] - drops[0] + 1},(v,k)=>Math.floor((k+drops[0])*(1+bonus/100)))
+        const allPossibleDrops = Array.from({length:drops[1] - drops[0] + 1},(v,k)=>(k+drops[0])*(1+bonus/100))
         const isSelected = s.name === selected.name;
         const currentBps = bps[idx] ?? 0
         const currentTarget = isSelected ? target : s.milestones[s.milestones.length-1]
